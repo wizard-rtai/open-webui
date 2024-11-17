@@ -10,7 +10,7 @@ from langchain.retrievers import ContextualCompressionRetriever, EnsembleRetriev
 from langchain_community.retrievers import BM25Retriever
 from langchain_core.documents import Document
 from langchain_nvidia_ai_endpoints import ChatNVIDIA, NVIDIAEmbeddings
-
+from open_webui.apps.retrieval.main import app as retrieval_app
 
 
 from open_webui.apps.ollama.main import (
@@ -69,9 +69,9 @@ class VectorSearchRetriever(BaseRetriever):
 def get_query_embeddings(query: str, is_query: bool = False) -> list[float]:
     """Generates embeddings for a query based on the configured embedding engine."""
     if "nvidia" in app.state.config.RAG_EMBEDDING_ENGINE:
-        return app.state.EMBEDDING_FUNCTION(query, is_query=is_query)
+        return retrieval_app.state.EMBEDDING_FUNCTION(query, is_query=is_query)
     else:
-        return app.state.EMBEDDING_FUNCTION(query)
+        return retrieval_app.state.EMBEDDING_FUNCTION(query)
 
 
 def query_doc(
