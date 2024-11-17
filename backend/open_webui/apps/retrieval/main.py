@@ -46,6 +46,7 @@ from open_webui.apps.retrieval.utils import (
     query_collection_with_hybrid_search,
     query_doc,
     query_doc_with_hybrid_search,
+    get_query_embeddings,
 )
 
 from open_webui.apps.webui.models.files import Files
@@ -1187,13 +1188,6 @@ class QueryDocForm(BaseModel):
     r: Optional[float] = None
     hybrid: Optional[bool] = None
 
-# This function allows a customized embedding_function that accomadates NVIDIAEmbeddings
-def get_query_embeddings(query: str, is_query: bool = False) -> list[float]:
-    """Generates embeddings for a query based on the configured embedding engine."""
-    if "nvidia" in app.state.config.RAG_EMBEDDING_ENGINE:
-        return app.state.EMBEDDING_FUNCTION(query, is_query=is_query)
-    else:
-        return app.state.EMBEDDING_FUNCTION(query)
 
 @app.post("/query/doc")
 def query_doc_handler(
