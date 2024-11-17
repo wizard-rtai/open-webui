@@ -180,13 +180,11 @@ def merge_and_sort_query_results(
 
 def query_collection(
     collection_names: list[str],
-    query: str,
-    embedding_function,
+    query_vectors: list[float],    
     k: int,
 ) -> dict:
 
-    results = []
-    query_embedding = embedding_function(query)
+    results = []    
 
     for collection_name in collection_names:
         if collection_name:
@@ -194,7 +192,7 @@ def query_collection(
                 result = query_doc(
                     collection_name=collection_name,
                     k=k,
-                    query_embedding=query_embedding,
+                    query_embedding=query_vectors,
                 )
                 if result is not None:
                     results.append(result.model_dump())
