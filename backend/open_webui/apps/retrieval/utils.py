@@ -312,7 +312,7 @@ def get_embedding_function(
     elif embedding_engine == "nvidia":
         log.info(f"Using embedding_engine: {embedding_engine}")
         # Use NVIDIAEmbedding directly through the generate_embeddings function
-        return lambda texts, is_query: generate_embeddings(
+        return lambda texts, is_query=False: generate_embeddings(
                 engine="nvidia",
                 model=embedding_model,
                 text=texts,
