@@ -1188,7 +1188,7 @@ class QueryDocForm(BaseModel):
     hybrid: Optional[bool] = None
 
 # This function allows a customized embedding_function that accomadates NVIDIAEmbeddings
-def get_query_embedding(query: str, is_query: bool = False) -> list[float]:
+def get_query_embedding_function(query: str, is_query: bool = False) -> list[float]:
     """Generates embeddings for a query based on the configured embedding engine."""
     if "nvidia" in app.state.config.RAG_EMBEDDING_ENGINE:
         return app.state.EMBEDDING_FUNCTION(query, is_query=is_query)
@@ -1207,7 +1207,7 @@ def query_doc_handler(
             return query_doc_with_hybrid_search(
                 collection_name=form_data.collection_name,
                 query=form_data.query,
-                embedding_function=lambda query: get_query_embedding(query, is_query=True),
+                embedding_function=lambda query: get_query_embedding_function(query, is_query=True),
                 k=form_data.k if form_data.k else app.state.config.TOP_K,
                 reranking_function=app.state.sentence_transformer_rf,
                 r=(
@@ -1216,11 +1216,11 @@ def query_doc_handler(
             )
         else:
             # Generate embedding only for non-hybrid search
-            # The is_query parameter allows the EMBEDDING_FUNCTION to be customized for NVIDIAEmbeddings
-            query_embedding = 
+            # The is_query parameter allows the EMBEDDING_FUNCTION to be customized for NVIDIAEmbeddings            
             return query_doc(
                 collection_name=form_data.collection_name,
-                query=get_query_embedding(form_data.query, is_query=True),                  
+                query=form_data.query,
+                embedding_function=get_query_embedding_function(form_data.query, is_query=True),                  
                 k=form_data.k if form_data.k else app.state.config.TOP_K,
             )
     except Exception as e:
@@ -1249,7 +1249,7 @@ def query_collection_handler(
             return query_collection_with_hybrid_search(
                 collection_names=form_data.collection_names,
                 query=form_data.query,
-                embedding_function=lambda query: get_query_embedding(query, is_query=True),                
+                embedding_function=lambda query: get_query_embedding_function(query, is_query=True),                
                 k=form_data.k if form_data.k else app.state.config.TOP_K,
                 reranking_function=app.state.sentence_transformer_rf,
                 r=(
@@ -1258,12 +1258,11 @@ def query_collection_handler(
             )
         else:
             # Generate embedding only for non-hybrid search
-            # The is_query parameter allows the EMBEDDING_FUNCTION to be customized for NVIDIAEmbeddings
-            query_embedding = 
+            # The is_query parameter allows the EMBEDDING_FUNCTION to be customized for NVIDIAEmbeddings            
             return query_collection(
                 collection_names=form_data.collection_names,
-                query=get_query_embedding(form_data.query, is_query=True),
-                embedding_function=None,
+                query=form_data.query,
+                embedding_function=get_query_embedding_function(form_data.query, is_query=True),
                 k=form_data.k if form_data.k else app.state.config.TOP_K,
             )
 
