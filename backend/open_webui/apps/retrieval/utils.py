@@ -65,6 +65,14 @@ class VectorSearchRetriever(BaseRetriever):
             )
         return results
 
+# This function allows a customized embedding_function that accomadates NVIDIAEmbeddings
+def get_query_embeddings(query: str, is_query: bool = False) -> list[float]:
+    """Generates embeddings for a query based on the configured embedding engine."""
+    if "nvidia" in app.state.config.RAG_EMBEDDING_ENGINE:
+        return app.state.EMBEDDING_FUNCTION(query, is_query=is_query)
+    else:
+        return app.state.EMBEDDING_FUNCTION(query)
+
 
 def query_doc(
     collection_name: str,
@@ -388,8 +396,7 @@ def get_rag_context(
                     if (not hybrid_search) or (context is None):
                         context = query_collection(
                             collection_names=collection_names,
-                            query=query,
-                            embedding_function=embedding_function,
+                            query_vectors=get_query_embeddings(query, is_query=True),                            
                             k=k,
                         )
             except Exception as e:
