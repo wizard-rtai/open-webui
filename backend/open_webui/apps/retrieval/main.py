@@ -1218,8 +1218,7 @@ def query_doc_handler(
             # The is_query parameter allows the EMBEDDING_FUNCTION to be customized for NVIDIAEmbeddings            
             return query_doc(
                 collection_name=form_data.collection_name,
-                query=form_data.query,
-                embedding_function=get_query_embeddings(form_data.query, is_query=True),                  
+                query=get_query_embeddings(form_data.query, is_query=True),                  
                 k=form_data.k if form_data.k else app.state.config.TOP_K,
             )
     except Exception as e:
