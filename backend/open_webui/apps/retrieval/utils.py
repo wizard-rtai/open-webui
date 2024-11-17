@@ -9,6 +9,8 @@ from huggingface_hub import snapshot_download
 from langchain.retrievers import ContextualCompressionRetriever, EnsembleRetriever
 from langchain_community.retrievers import BM25Retriever
 from langchain_core.documents import Document
+from langchain_nvidia_ai_endpoints import ChatNVIDIA, NVIDIAEmbeddings
+
 
 
 from open_webui.apps.ollama.main import (
@@ -307,6 +309,19 @@ def get_embedding_function(
 
         return lambda query: generate_multiple(query, func)
 
+    elif embedding_engine == "nvidia":
+        log.info(f"Using embedding_engine: {embedding_engine}")
+        # Use NVIDIAEmbedding directly through the generate_embeddings function
+        return lambda texts, is_query: generate_embeddings(
+                engine="nvidia",
+                model=embedding_model,
+                text=texts,
+                is_query=is_query,
+        )
+    else:
+        raise ValueError(f"Unsupported embedding engine: {embedding_engine}")
+
+
 
 def get_rag_context(
     files,
@@ -476,7 +491,7 @@ def generate_openai_batch_embeddings(
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {key}",
             },
-            json={"input": texts, "model": model},
+            json={"input": texts, "model": model, "input_type": "query"},
         )
         r.raise_for_status()
         data = r.json()
@@ -514,6 +529,26 @@ def generate_embeddings(engine: str, model: str, text: Union[str, list[str]], **
             embeddings = generate_openai_batch_embeddings(model, [text], key, url)
 
         return embeddings[0] if isinstance(text, str) else embeddings
+    elif engine == "nvidia":
+        #embedding_model = NVIDIAEmbeddings(base_url="http://localhost:9080/v1", model="nvidia/nv-embedqa-e5-v5")
+        key = kwargs.get("key", "")
+        url = kwargs.get("url", "http://10.0.207.111:9080/v1")
+        embedding_model = NVIDIAEmbeddings(base_url=url, model="nvidia/nv-embedqa-e5-v5")
+
+        if isinstance(text, list):
+            # Determine whether this is a query or a passage.
+            is_query = kwargs.get("is_query", False)
+            if is_query:
+                return embedding_model.embed_query(text)
+            else:
+                return embedding_model.embed_documents(text)
+        else:
+            #Single String input
+            is_query = kwargs.get("is_query", False)
+            if is_query:
+                return embedding_model.embed_query([text])[0]
+            else:
+                return embedding_model.embed_documents([text])[0]
 
 
 import operator
