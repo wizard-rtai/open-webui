@@ -499,6 +499,7 @@ async def chat_completion_files_handler(body) -> tuple[dict, dict[str, list]]:
             reranking_function=retrieval_app.state.sentence_transformer_rf,
             r=retrieval_app.state.config.RELEVANCE_THRESHOLD,
             hybrid_search=retrieval_app.state.config.ENABLE_RAG_HYBRID_SEARCH,
+            embedding_engine=retrieval_app.state.config.RAG_EMBEDDING_ENGINE,
         )
 
         log.debug(f"rag_contexts: {contexts}, citations: {citations}")
