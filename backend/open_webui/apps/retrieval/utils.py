@@ -550,7 +550,8 @@ def generate_embeddings(engine: str, model: str, text: Union[str, list[str]], **
                 return embedding_model.embed_documents(text)
         else:
             #Single String input
-            is_query = kwargs.get("is_query", False)
+            #is_query = kwargs.get("is_query", False)
+            is_query = False
             if is_query:
                 return embedding_model.embed_query([text])[0]
             else:
