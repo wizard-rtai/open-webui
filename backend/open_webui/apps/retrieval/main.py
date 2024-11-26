@@ -49,6 +49,7 @@ from open_webui.apps.retrieval.utils import (
     query_collection_with_hybrid_search,
     query_doc,
     query_doc_with_hybrid_search,
+    get_query_embeddings,
 )
 
 from open_webui.apps.webui.models.files import Files
@@ -846,7 +847,7 @@ def save_docs_to_vector_db(
         )
 
         embeddings = embedding_function(
-            list(map(lambda x: x.replace("\n", " "), texts))
+            list(map(lambda x: x.replace("\n", " "), texts)), is_query=False
         )
 
         items = [
@@ -1348,11 +1349,12 @@ def query_doc_handler(
     user=Depends(get_verified_user),
 ):
     try:
+               
         if app.state.config.ENABLE_RAG_HYBRID_SEARCH:
             return query_doc_with_hybrid_search(
                 collection_name=form_data.collection_name,
                 query=form_data.query,
-                embedding_function=app.state.EMBEDDING_FUNCTION,
+                embedding_function=lambda query: get_query_embeddings(query, app.state.config.RAG_EMBEDDING_ENGINE, app.state.config.EMBEDDING_FUNCTION, is_query=True),
                 k=form_data.k if form_data.k else app.state.config.TOP_K,
                 reranking_function=app.state.sentence_transformer_rf,
                 r=(
@@ -1360,10 +1362,11 @@ def query_doc_handler(
                 ),
             )
         else:
+            # Generate embedding only for non-hybrid search
+            # The is_query parameter allows the EMBEDDING_FUNCTION to be customized for NVIDIAEmbeddings            
             return query_doc(
                 collection_name=form_data.collection_name,
-                query=form_data.query,
-                embedding_function=app.state.EMBEDDING_FUNCTION,
+                query=get_query_embeddings(form_data.query, app.state.config.RAG_EMBEDDING_ENGINE, app.state.config.EMBEDDING_FUNCTION, is_query=True),                  
                 k=form_data.k if form_data.k else app.state.config.TOP_K,
             )
     except Exception as e:
@@ -1392,7 +1395,7 @@ def query_collection_handler(
             return query_collection_with_hybrid_search(
                 collection_names=form_data.collection_names,
                 query=form_data.query,
-                embedding_function=app.state.EMBEDDING_FUNCTION,
+                embedding_function=lambda query: get_query_embeddings(query, app.state.config.RAG_EMBEDDING_ENGINE, app.state.config.EMBEDDING_FUNCTION, is_query=True),                
                 k=form_data.k if form_data.k else app.state.config.TOP_K,
                 reranking_function=app.state.sentence_transformer_rf,
                 r=(
@@ -1400,10 +1403,11 @@ def query_collection_handler(
                 ),
             )
         else:
+            # Generate embedding only for non-hybrid search
+            # The is_query parameter allows the EMBEDDING_FUNCTION to be customized for NVIDIAEmbeddings            
             return query_collection(
                 collection_names=form_data.collection_names,
-                query=form_data.query,
-                embedding_function=app.state.EMBEDDING_FUNCTION,
+                query=get_query_embeddings(form_data.query, app.state.config.RAG_EMBEDDING_ENGINE, app.state.config.EMBEDDING_FUNCTION, is_query=True),                
                 k=form_data.k if form_data.k else app.state.config.TOP_K,
             )
 

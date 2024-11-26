@@ -40,6 +40,7 @@ tiktoken
 langchain==0.3.7
 langchain-community==0.3.7
 langchain-chroma==0.1.4
+langchain_nvidia_ai_endpoints
 
 fake-useragent==1.5.1
 chromadb==0.5.15

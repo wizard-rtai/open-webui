@@ -1,34 +1,30 @@
 services:
-  ollama:
-    volumes:
-      - ollama:/root/.ollama
-    container_name: ollama
-    pull_policy: always
-    tty: true
-    restart: unless-stopped
-    image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
-
   open-webui:
     build:
       context: .
-      args:
-        OLLAMA_BASE_URL: '/ollama'
       dockerfile: Dockerfile
-    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
+    image: ghcr.io/open-webui/open-webui:main
     container_name: open-webui
     volumes:
-      - open-webui:/app/backend/data
-    depends_on:
-      - ollama
+      - openwebui-data:/app/backend/data
     ports:
-      - ${OPEN_WEBUI_PORT-3000}:8080
+      - 8090:8080
     environment:
-      - 'OLLAMA_BASE_URL=http://ollama:11434'
-      - 'WEBUI_SECRET_KEY='
+      - 'ENABLE_OPENAI_API=True'
+      - 'OPENAI_API_BASE_URLS=http://10.0.207.111:8000/v1'
+      - 'OPENAI_API_KEYS='
+      - 'ENABLE_OLLAMA_API=False'
+      - 'VECTOR_DB=milvus'
+      - 'MILVUS_URI=http://10.0.207.111:19530'
+      - 'RAG_EMBEDDING_ENGINE=nvidia'
+      - 'RAG_EMBEDDING_MODEL=NV-EmbedQA-E5-v5'
+      - 'RAG_OPENAI_API_BASE_URL=http://10.0.207.111:9080/v1'
+      - 'RAG_OPENAI_API_KEY=a'
+      - 'RAG_EMBEDDING_BATCH_SIZE=1'
     extra_hosts:
       - host.docker.internal:host-gateway
     restart: unless-stopped
 
 volumes:
-  ollama: {}
-  open-webui: {}
+  openwebui-data: {}
+

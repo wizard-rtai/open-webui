@@ -10,6 +10,8 @@ from huggingface_hub import snapshot_download
 from langchain.retrievers import ContextualCompressionRetriever, EnsembleRetriever
 from langchain_community.retrievers import BM25Retriever
 from langchain_core.documents import Document
+from langchain_nvidia_ai_endpoints import ChatNVIDIA, NVIDIAEmbeddings
+
 
 from open_webui.apps.retrieval.vector.connector import VECTOR_DB_CLIENT
 from open_webui.utils.misc import get_last_user_message
@@ -58,6 +60,14 @@ class VectorSearchRetriever(BaseRetriever):
                 )
             )
         return results
+
+# This function allows a customized embedding_function that accomadates NVIDIAEmbeddings
+def get_query_embeddings(query: str, embedding_engine: str = "", embedding_function=None, is_query: bool = False) -> list[float]:
+    """Generates embeddings for a query based on the configured embedding engine."""
+    if "nvidia" in embedding_engine:
+        return embedding_function(query, is_query=is_query)
+    else:
+        return embedding_function(query)
 
 
 def query_doc(
@@ -177,27 +187,26 @@ def merge_and_sort_query_results(
 
 def query_collection(
     collection_names: list[str],
-    queries: list[str],
-    embedding_function,
+    query_vectors: list[float],    
     k: int,
 ) -> dict:
-    results = []
-    for query in queries:
-        query_embedding = embedding_function(query)
-        for collection_name in collection_names:
-            if collection_name:
-                try:
-                    result = query_doc(
-                        collection_name=collection_name,
-                        k=k,
-                        query_embedding=query_embedding,
-                    )
-                    if result is not None:
-                        results.append(result.model_dump())
-                except Exception as e:
-                    log.exception(f"Error when querying the collection: {e}")
-            else:
-                pass
+
+    results = []    
+
+    for collection_name in collection_names:
+        if collection_name:
+            try:
+                result = query_doc(
+                    collection_name=collection_name,
+                    k=k,
+                    query_embedding=query_vectors,
+                )
+                if result is not None:
+                    results.append(result.model_dump())
+            except Exception as e:
+                log.exception(f"Error when querying the collection: {e}")
+        else:
+            pass
 
     return merge_and_sort_query_results(results, k=k)
 
@@ -306,6 +315,19 @@ def get_embedding_function(
 
         return lambda query: generate_multiple(query, func)
 
+    elif embedding_engine == "nvidia":
+        log.info(f"Using embedding_engine: {embedding_engine}")
+        # Use NVIDIAEmbedding directly through the generate_embeddings function
+        return lambda texts, is_query=False: generate_embeddings(
+                engine="nvidia",
+                model=embedding_model,
+                text=texts,
+                is_query=is_query,
+        )
+    else:
+        raise ValueError(f"Unsupported embedding engine: {embedding_engine}")
+
+
 
 def get_sources_from_files(
     files,
@@ -315,6 +337,7 @@ def get_sources_from_files(
     reranking_function,
     r,
     hybrid_search,
+    embedding_engine,
 ):
     log.debug(f"files: {files} {queries} {embedding_function} {reranking_function}")
 
@@ -373,9 +396,7 @@ def get_sources_from_files(
                     if (not hybrid_search) or (context is None):
                         context = query_collection(
                             collection_names=collection_names,
-                            queries=queries,
-                            embedding_function=embedding_function,
-                            k=k,
+                            query_vectors=get_query_embeddings(query, embedding_engine, embedding_function, is_query=True),                                              k=k,
                         )
             except Exception as e:
                 log.exception(e)
@@ -455,7 +476,7 @@ def generate_openai_batch_embeddings(
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {key}",
             },
-            json={"input": texts, "model": model},
+            json={"input": texts, "model": model, "input_type": "query"},
         )
         r.raise_for_status()
         data = r.json()
@@ -513,6 +534,27 @@ def generate_embeddings(engine: str, model: str, text: Union[str, list[str]], **
             embeddings = generate_openai_batch_embeddings(model, [text], url, key)
 
         return embeddings[0] if isinstance(text, str) else embeddings
+    elif engine == "nvidia":
+        #embedding_model = NVIDIAEmbeddings(base_url="http://localhost:9080/v1", model="nvidia/nv-embedqa-e5-v5")
+        key = kwargs.get("key", "")
+        url = kwargs.get("url", "http://10.0.207.111:9080/v1")
+        embedding_model = NVIDIAEmbeddings(base_url=url, model="nvidia/nv-embedqa-e5-v5")
+
+        if isinstance(text, list):
+            # Determine whether this is a query or a passage.
+            is_query = kwargs.get("is_query", False)
+            if is_query:
+                return embedding_model.embed_query(text)
+            else:
+                return embedding_model.embed_documents(text)
+        else:
+            #Single String input
+            #is_query = kwargs.get("is_query", False)
+            is_query = False
+            if is_query:
+                return embedding_model.embed_query([text])[0]
+            else:
+                return embedding_model.embed_documents([text])[0]
 
 
 import operator
