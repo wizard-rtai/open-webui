@@ -70,13 +70,14 @@ def get_query_embeddings(query: str, embedding_engine: str = "", embedding_funct
         return embedding_function(query)
 
 
-def query_doc(
+def query_doc(    
     collection_name: str,
     query_embedding: list[float],
     k: int,
 ):
+    log.info(f"Query Embeddings: {query_embedding}")
     try:
-        result = VECTOR_DB_CLIENT.search(
+        result = VECTOR_DB_CLIENT.search(            
             collection_name=collection_name,
             vectors=[query_embedding],
             limit=k,
