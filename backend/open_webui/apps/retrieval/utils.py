@@ -193,7 +193,7 @@ def query_collection(
 ) -> dict:
 
     results = []    
-    log.info(f"Query Collection Embeddings: {query_embedding}")
+    log.info(f"Query Collection Embeddings: {query_vectors}")
     for collection_name in collection_names:
         if collection_name:
             try:
