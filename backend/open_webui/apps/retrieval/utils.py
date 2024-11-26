@@ -545,7 +545,7 @@ def generate_embeddings(engine: str, model: str, text: Union[str, list[str]], **
             is_query = kwargs.get("is_query", False)
             if is_query:
                 log.info(f"Query Text: {text}")
-                return embedding_model.embed_query(text)
+                return [embedding_model.embed_query(t) for t in text]                
             else:
                 return embedding_model.embed_documents(text)
         else:
