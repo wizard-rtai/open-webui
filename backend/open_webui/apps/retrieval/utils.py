@@ -75,7 +75,7 @@ def query_doc(
     query_embedding: list[float],
     k: int,
 ):
-    log.info(f"Query Embeddings: {query_embedding}")
+    log.info(f"Query Doc Embeddings: {query_embedding}")
     try:
         result = VECTOR_DB_CLIENT.search(            
             collection_name=collection_name,
@@ -193,11 +193,11 @@ def query_collection(
 ) -> dict:
 
     results = []    
-
+    log.info(f"Query Collection Embeddings: {query_embedding}")
     for collection_name in collection_names:
         if collection_name:
             try:
-                result = query_doc(
+                result = query_doc(                    
                     collection_name=collection_name,
                     k=k,
                     query_embedding=query_vectors,
