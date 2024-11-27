@@ -545,10 +545,10 @@ def generate_embeddings(engine: str, model: str, text: Union[str, list[str]], **
             # Determine whether this is a query or a passage.
             is_query = kwargs.get("is_query", False)
             if is_query:
-                log.info(f"Query Text: {text}")
+                #log.info(f"Query Text: {text}")
                 return [embedding_model.embed_query(t) for t in text]                
             else:
-                log.info(f"Passage Text: {text}")                 
+                #log.info(f"Passage Text: {text}")                 
                 return [embedding_model.embed_documents([t]) for t in text] 
         else:
             #Single String input
