@@ -854,7 +854,13 @@ def save_docs_to_vector_db(
         if not embeddings or not isinstance(embeddings, list):
             raise ValueError("Embeddings must be a non-empty list of float vectors.")
 
-        for idx, vector in enumerate(embeddings):
+        # Flatten embeddings if they are wrapped in a list
+        flattened_embeddings = [
+            vector[0] if isinstance(vector, list) and len(vector) == 1 else vector
+            for vector in embeddings
+        ]
+
+        for idx, vector in enumerate(flattened_embeddings):
             if not isinstance(vector, list):
                 log.error(f"Embedding at index {idx} is not a list. Type: {type(vector)}, Value: {vector}")
                 raise ValueError(f"Embedding at index {idx} is invalid: {vector}")
@@ -870,7 +876,7 @@ def save_docs_to_vector_db(
             {
                 "id": str(uuid.uuid4()),
                 "text": text,
-                "vector": embeddings[idx],
+                "vector": flattened_embeddings[idx],
                 "metadata": metadatas[idx],
             }
             for idx, text in enumerate(texts)
