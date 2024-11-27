@@ -849,7 +849,7 @@ def save_docs_to_vector_db(
         embeddings = embedding_function(
             list(map(lambda x: x.replace("\n", " "), texts)), is_query=False
         )
-
+        log.debug(f"EMBEDDINGS_ALERT_ALERT:  {embeddings} )"
         items = [
             {
                 "id": str(uuid.uuid4()),
