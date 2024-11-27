@@ -855,8 +855,16 @@ def save_docs_to_vector_db(
             raise ValueError("Embeddings must be a non-empty list of float vectors.")
 
         for idx, vector in enumerate(embeddings):
-            if not isinstance(vector, list) or not all(isinstance(v, (float, int)) for v in vector):
+            if not isinstance(vector, list):
+                log.error(f"Embedding at index {idx} is not a list. Type: {type(vector)}, Value: {vector}")
                 raise ValueError(f"Embedding at index {idx} is invalid: {vector}")
+            if not all(isinstance(v, (float, int)) for v in vector):
+                log.error(f"Embedding at index {idx} contains non-float values: {vector}")
+                raise ValueError(f"Embedding at index {idx} is invalid: {vector}")
+            if len(vector) != collection_dim:
+                log.error(f"Embedding at index {idx} has incorrect dimension: {len(vector)} (expected: {collection_dim}). Value: {vector}")
+                raise ValueError(f"Embedding at index {idx} is invalid: {vector}")
+
 
         items = [
             {
