@@ -849,7 +849,15 @@ def save_docs_to_vector_db(
         embeddings = embedding_function(
             list(map(lambda x: x.replace("\n", " "), texts)), is_query=False
         )
-        log.debug(f"EMBEDDINGS_ALERT_ALERT:  {embeddings} ")
+        log.info(f"EMBEDDINGS_ALERT_ALERT:  {embeddings} ")
+
+        if not embeddings or not isinstance(embeddings, list):
+            raise ValueError("Embeddings must be a non-empty list of float vectors.")
+
+        for idx, vector in enumerate(embeddings):
+            if not isinstance(vector, list) or not all(isinstance(v, (float, int)) for v in vector):
+                raise ValueError(f"Embedding at index {idx} is invalid: {vector}")
+
         items = [
             {
                 "id": str(uuid.uuid4()),
