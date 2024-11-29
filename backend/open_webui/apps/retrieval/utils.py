@@ -70,6 +70,18 @@ def get_query_embeddings(query: str, embedding_engine: str = "", embedding_funct
         return embedding_function(query)
 
 
+def validate_vector(vector):
+    if not isinstance(vector, list):
+        raise ValueError(f"Vector must be a list, but got {type(vector)}")
+    
+    # Ensure all elements are floats or convertible to floats
+    if not all(isinstance(x, (float, int)) for x in vector):
+        raise ValueError(f"Vector contains invalid elements: {vector}")
+    
+    # Convert integers to floats
+    return [float(x) for x in vector]
+
+
 def query_doc(    
     collection_name: str,
     query_embedding: list[float],
@@ -201,27 +213,30 @@ def query_collection(
 
     # Iterate over each sublist in query_vectors
     for idx, vector in enumerate(query_vectors):
-        if not isinstance(vector, list):
-            log.error(f"Query vector at index {idx} is not a list: {vector}")
-            continue
+        try:
+            #Validate the vector
+            valid_vector = validate_vector(vector)
+            log.info(f"\n\n\nValidated query vector.\n\n\n {idx}")
             
-        log.info(f"Processing query vector {idx}: {vector}")
+            #log.info(f"Processing query vector {idx}: {vector}")
       
-        for collection_name in collection_names:
-            if collection_name:
-                try:
-                    result = query_doc(                    
-                        collection_name=collection_name,
-                        k=k,
-                        query_embedding=query_vectors,
-                    )
-                    if result is not None:
-                        results.append(result.model_dump())
-                except Exception as e:
-                    log.exception(f"Error when querying the collection: {e}")
-            else:
-                pass
-
+            for collection_name in collection_names:
+                if collection_name:
+                    try:
+                        result = query_doc(                    
+                            collection_name=collection_name,
+                            k=k,
+                            query_embedding=valid_vector,
+                        )
+                        if result is not None:
+                            results.append(result.model_dump())
+                    except Exception as e:
+                        log.exception(f"Error when querying the collection: {e}")
+                else:
+                    pass
+        except ValueError as e:
+            log.error(f"\n\n\nInvalid vector at index {idx}: {e}")
+            
     return merge_and_sort_query_results(results, k=k)
 
 
