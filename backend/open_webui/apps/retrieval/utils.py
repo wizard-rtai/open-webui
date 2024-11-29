@@ -75,7 +75,8 @@ def query_doc(
     query_embedding: list[float],
     k: int,
 ):
-    log.info(f"Query Doc Embeddings: {query_embedding}")
+    if isinstance(query_embedding, list):
+        log.info(f"\n\n\nTypes of elements in query_embedding:\n\n\n {[type(x) for x in query_embedding]}")
     try:
         result = VECTOR_DB_CLIENT.search(            
             collection_name=collection_name,
@@ -83,7 +84,7 @@ def query_doc(
             limit=k,
         )
 
-        log.info(f"query_doc:result {result.ids} {result.metadatas}")
+        #log.info(f"query_doc:result {result.ids} {result.metadatas}")
         return result
     except Exception as e:
         print(e)
@@ -192,8 +193,10 @@ def query_collection(
     k: int,
 ) -> dict:
 
-    results = []    
-    log.info(f"Query Collection Embeddings: {query_vectors}")
+    results = []   
+    if isinstance(query_embedding, list):
+        log.info(f"\n\n\nTypes of elements in query_embedding:\n\n\n {[type(x) for x in query_embedding]}")
+    
     for collection_name in collection_names:
         if collection_name:
             try:
