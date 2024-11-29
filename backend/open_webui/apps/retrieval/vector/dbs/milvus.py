@@ -1,6 +1,7 @@
 from pymilvus import MilvusClient as Client
 from pymilvus import FieldSchema, DataType
 import json
+import logging
 
 from typing import Optional
 
