@@ -78,10 +78,6 @@ def query_doc(
     if isinstance(query_embedding, list):
         log.info(f"\n\n\nTypes of elements in query_embedding:\n\n\n {[type(x) for x in query_embedding]}")
 
-     # Flatten the vector if it is nested
-    if len(query_embedding) == 1 and isinstance(query_embedding[0], list):
-        query_embedding = query_embedding[0]
-        
     try:
         result = VECTOR_DB_CLIENT.search(            
             collection_name=collection_name,
