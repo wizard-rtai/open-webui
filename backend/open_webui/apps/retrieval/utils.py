@@ -211,32 +211,32 @@ def query_collection(
         log.info(f"\n\n\nTypes of elements in query_vectors:\n\n\n {[type(x) for x in query_vectors]}")
 
 
-    # Iterate over each sublist in query_vectors
-   # for idx, vector in enumerate(query_vectors):
-       # try:
+    #Iterate over each sublist in query_vectors
+    for idx, vector in enumerate(query_vectors):
+        try:
             #Validate the vector
-            #valid_vector = validate_vector(vector)
-          #  log.info(f"\n\n\nValidated query vector.\n\n\n {idx}")
+            valid_vector = validate_vector(vector)
+            log.info(f"\n\n\nValidated query vector.\n\n\n {idx}")
             
-            #log.info(f"Processing query vector {idx}: {vector}")
+            log.info(f"Processing query vector {idx}: {vector}")
 
-      #  except ValueError as e:
-       #     log.error(f"\n\n\nInvalid vector at index {idx}: {e}")
+        except ValueError as e:
+            log.error(f"\n\n\nInvalid vector at index {idx}: {e}")
       
-    for collection_name in collection_names:
-        if collection_name:
-            try:
-                result = query_doc(                    
-                    collection_name=collection_name,
-                    k=k,
-                    query_embedding=query_vectors,
-                )
-                if result is not None:
-                    results.append(result.model_dump())
-            except Exception as e:
-                log.exception(f"Error when querying the collection: {e}")
-        else:
-            pass
+        for collection_name in collection_names:
+            if collection_name:
+                try:
+                    result = query_doc(                    
+                        collection_name=collection_name,
+                        k=k,
+                        query_embedding=valid_vector,
+                    )
+                    if result is not None:
+                        results.append(result.model_dump())
+                except Exception as e:
+                    log.exception(f"Error when querying the collection: {e}")
+            else:
+                pass
        
             
     return merge_and_sort_query_results(results, k=k)
