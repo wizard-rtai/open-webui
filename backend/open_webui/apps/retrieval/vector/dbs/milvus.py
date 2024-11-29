@@ -135,11 +135,7 @@ class MilvusClient:
             limit=limit,
             output_fields=["data", "metadata"],
         )
-        log.info(f"Raw search result: {result}")
-        if isinstance(result, list):
-            for idx, item in enumerate(result):
-                log.info(f"Result item {idx}: {item} (type: {type(item)})")
-
+     
         return self._result_to_search_result(result)
 
     def query(self, collection_name: str, filter: dict, limit: Optional[int] = None):
