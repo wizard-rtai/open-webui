@@ -860,7 +860,7 @@ def save_docs_to_vector_db(
             for vector in embeddings
         ]
 
-        collection_dim = VECTOR_DB_CLIENT.get_collection_dim(collection_name)
+        
         
         for idx, vector in enumerate(flattened_embeddings):
             if not isinstance(vector, list):
