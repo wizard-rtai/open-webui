@@ -849,7 +849,7 @@ def save_docs_to_vector_db(
         embeddings = embedding_function(
             list(map(lambda x: x.replace("\n", " "), texts)), is_query=False
         )
-        log.info(f"EMBEDDINGS_ALERT_ALERT:  {embeddings} ")
+        #log.info(f"EMBEDDINGS_ALERT_ALERT:  {embeddings} ")
 
         if not embeddings or not isinstance(embeddings, list):
             raise ValueError("Embeddings must be a non-empty list of float vectors.")
