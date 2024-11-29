@@ -873,7 +873,7 @@ def save_docs_to_vector_db(
         items = [
             {
                 "id": str(uuid.uuid4()),
-                "text": text,
+                "data": text,
                 "vector": flattened_embeddings[idx],
                 "metadata": metadatas[idx],
             }
