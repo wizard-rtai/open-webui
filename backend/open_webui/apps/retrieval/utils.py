@@ -219,23 +219,25 @@ def query_collection(
             log.info(f"\n\n\nValidated query vector.\n\n\n {idx}")
             
             #log.info(f"Processing query vector {idx}: {vector}")
-      
-            for collection_name in collection_names:
-                if collection_name:
-                    try:
-                        result = query_doc(                    
-                            collection_name=collection_name,
-                            k=k,
-                            query_embedding=valid_vector,
-                        )
-                        if result is not None:
-                            results.append(result.model_dump())
-                    except Exception as e:
-                        log.exception(f"Error when querying the collection: {e}")
-                else:
-                    pass
+
         except ValueError as e:
             log.error(f"\n\n\nInvalid vector at index {idx}: {e}")
+      
+    for collection_name in collection_names:
+        if collection_name:
+            try:
+                result = query_doc(                    
+                    collection_name=collection_name,
+                    k=k,
+                    query_embedding=valid_vector,
+                )
+                if result is not None:
+                    results.append(result.model_dump())
+            except Exception as e:
+                log.exception(f"Error when querying the collection: {e}")
+        else:
+            pass
+       
             
     return merge_and_sort_query_results(results, k=k)
 
