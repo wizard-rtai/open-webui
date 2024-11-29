@@ -221,7 +221,7 @@ class MilvusClient:
                 {
                     "id": item["id"],
                     "vector": item["vector"],
-                    "data": {"text": item["text"]},
+                    "data": item["data"],
                     "metadata": item["metadata"],
                 }
                 for item in items
