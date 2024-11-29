@@ -569,7 +569,7 @@ def generate_embeddings(engine: str, model: str, text: Union[str, list[str]], **
         #embedding_model = NVIDIAEmbeddings(base_url="http://localhost:9080/v1", model="nvidia/nv-embedqa-e5-v5")
         key = kwargs.get("key", "")
         url = kwargs.get("url", "http://10.0.207.111:9080/v1")
-        embedding_model = NVIDIAEmbeddings(base_url=url, model="nvidia/nv-embedqa-e5-v5")
+        embedding_model = NVIDIAEmbeddings(base_url=url, model="nvidia/nv-embedqa-e5-v5", trucate="END")
 
         if isinstance(text, list):
             # Determine whether this is a query or a passage.
