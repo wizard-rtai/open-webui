@@ -194,8 +194,8 @@ def query_collection(
 ) -> dict:
 
     results = []   
-    if isinstance(query_embedding, list):
-        log.info(f"\n\n\nTypes of elements in query_embedding:\n\n\n {[type(x) for x in query_embedding]}")
+    if isinstance(query_vectors, list):
+        log.info(f"\n\n\nTypes of elements in query_vectors:\n\n\n {[type(x) for x in query_vectors]}")
     
     for collection_name in collection_names:
         if collection_name:
