@@ -198,21 +198,29 @@ def query_collection(
     if isinstance(query_vectors, list):
         log.info(f"\n\n\nTypes of elements in query_vectors:\n\n\n {[type(x) for x in query_vectors]}")
 
+
+    # Iterate over each sublist in query_vectors
+    for idx, vector in enumerate(query_vectors):
+        if not isinstance(vector, list):
+            log.error(f"Query vector at index {idx} is not a list: {vector}")
+            continue
+            
+        log.info(f"Processing query vector {idx}: {vector}")
       
-    for collection_name in collection_names:
-        if collection_name:
-            try:
-                result = query_doc(                    
-                    collection_name=collection_name,
-                    k=k,
-                    query_embedding=query_vectors,
-                )
-                if result is not None:
-                    results.append(result.model_dump())
-            except Exception as e:
-                log.exception(f"Error when querying the collection: {e}")
-        else:
-            pass
+        for collection_name in collection_names:
+            if collection_name:
+                try:
+                    result = query_doc(                    
+                        collection_name=collection_name,
+                        k=k,
+                        query_embedding=query_vectors,
+                    )
+                    if result is not None:
+                        results.append(result.model_dump())
+                except Exception as e:
+                    log.exception(f"Error when querying the collection: {e}")
+            else:
+                pass
 
     return merge_and_sort_query_results(results, k=k)
 
