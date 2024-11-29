@@ -26,7 +26,7 @@ class MilvusClient:
             _metadatas = []
             for item in match:
                 _ids.append(item.get("id"))
-                _documents.append(item.get("data", {}).get("text"))
+                _documents.append(item.get("data", {}).get("data"))
                 _metadatas.append(item.get("metadata"))
 
             ids.append(_ids)
@@ -56,7 +56,7 @@ class MilvusClient:
             for item in match:
                 _ids.append(item.get("id"))
                 _distances.append(item.get("distance"))
-                _documents.append(item.get("entity", {}).get("data", {}).get("text"))
+                _documents.append(item.get("entity", {}).get("data", {}).get("data"))
                 _metadatas.append(item.get("entity", {}).get("metadata"))
 
             ids.append(_ids)
@@ -244,7 +244,7 @@ class MilvusClient:
                 {
                     "id": item["id"],
                     "vector": item["vector"],
-                    "data": {"text": item["text"]},
+                    "data": item["data"],
                     "metadata": item["metadata"],
                 }
                 for item in items
