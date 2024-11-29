@@ -26,7 +26,7 @@ class MilvusClient:
             _metadatas = []
             for item in match:
                 _ids.append(item.get("id"))
-                _documents.append(item.get("data", {}).get("text"))
+                _documents.append(item.get("data", {}).get("data"))
                 _metadatas.append(item.get("metadata"))
 
             ids.append(_ids)
