@@ -1,8 +1,6 @@
 from pymilvus import MilvusClient as Client
 from pymilvus import FieldSchema, DataType
 import json
-import logging
-log = logging.getLogger(__name__)
 
 from typing import Optional
 
@@ -55,8 +53,7 @@ class MilvusClient:
             _documents = []
             _metadatas = []
 
-            for item in match:
-                log.info(f"Item is type: {type(item)}")
+            for item in match:                
                 _ids.append(item.get("id"))
                 _distances.append(item.get("distance"))
                 #_documents.append(item.get("entity", {}).get("data", {}).get("text"))
