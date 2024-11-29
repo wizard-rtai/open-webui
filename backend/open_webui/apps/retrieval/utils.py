@@ -87,9 +87,6 @@ def query_doc(
     query_embedding: list[float],
     k: int,
 ):
-    if isinstance(query_embedding, list):
-        log.info(f"\n\n\nTypes of elements in query_embedding:\n\n\n {[type(x) for x in query_embedding]}")
-
     try:
         result = VECTOR_DB_CLIENT.search(            
             collection_name=collection_name,
@@ -207,19 +204,14 @@ def query_collection(
 ) -> dict:
 
     results = []   
-    if isinstance(query_vectors, list):
-        log.info(f"\n\n\nTypes of elements in query_vectors:\n\n\n {[type(x) for x in query_vectors]}")
-
+    
 
     #Iterate over each sublist in query_vectors
     for idx, vector in enumerate(query_vectors):
         try:
             #Validate the vector
             valid_vector = validate_vector(vector)
-            log.info(f"\n\n\nValidated query vector.\n\n\n {idx}")
             
-            log.info(f"Processing query vector {idx}: {vector}")
-
         except ValueError as e:
             log.error(f"\n\n\nInvalid vector at index {idx}: {e}")
       
