@@ -134,6 +134,10 @@ class MilvusClient:
             limit=limit,
             output_fields=["data", "metadata"],
         )
+        log.debug(f"Raw search result: {result}")
+        if isinstance(result, list):
+            for idx, item in enumerate(result):
+                log.debug(f"Result item {idx}: {item} (type: {type(item)})")
 
         return self._result_to_search_result(result)
 
