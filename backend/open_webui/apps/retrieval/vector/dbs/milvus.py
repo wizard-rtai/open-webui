@@ -3,6 +3,9 @@ from pymilvus import FieldSchema, DataType
 import json
 import logging
 
+log = logging.getLogger(__name__)
+#log.setLevel(SRC_LOG_LEVELS["RAG"])
+
 from typing import Optional
 
 from open_webui.apps.retrieval.vector.main import VectorItem, SearchResult, GetResult
