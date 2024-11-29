@@ -198,10 +198,7 @@ def query_collection(
     if isinstance(query_vectors, list):
         log.info(f"\n\n\nTypes of elements in query_vectors:\n\n\n {[type(x) for x in query_vectors]}")
 
-      # Flatten the vector if it is nested
-    if len(query_vectors) == 1 and isinstance(query_vectors[0], list):
-        query_vectors = query_vectors[0]
-    
+      
     for collection_name in collection_names:
         if collection_name:
             try:
