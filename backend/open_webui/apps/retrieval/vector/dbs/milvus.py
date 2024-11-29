@@ -56,6 +56,7 @@ class MilvusClient:
             _metadatas = []
 
             for item in match:
+                log.info(f"Item is type: {type(item)}")
                 _ids.append(item.get("id"))
                 _distances.append(item.get("distance"))
                 _documents.append(item.get("entity", {}).get("data", {}).get("text"))
